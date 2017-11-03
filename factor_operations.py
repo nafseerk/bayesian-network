@@ -91,7 +91,21 @@ def sumout(factor, variable):
 
     return resultFactor
                         
-            
+
+def normalize(factor):
+    normalizedFactor = Factor()
+
+    #Set the variables of the normalized factor
+    newVariables = [var for var in factor.getVariables()]
+    normalizedFactor.setVariables(newVariables)
+
+    #Normalize the CPT entries
+    probabilitySum = sum(factor.table.values())
+    for variablesAssignment, probabilityValue in factor.table.items():
+        normalizedFactor.addEntry(variablesAssignment, probabilityValue/probabilitySum)
+
+    return normalizedFactor
+    
     
 
 if __name__ == '__main__':
@@ -119,7 +133,7 @@ if __name__ == '__main__':
     CPT3.print()
 
     productFactor = multiply(CPT2, CPT3)
-    print('The product factor is...')
+    print('Multiplying the factors...')
     productFactor.print()
     print('\n\n')
 
@@ -131,4 +145,14 @@ if __name__ == '__main__':
     resultFactor = sumout(CPT2, 'A')
     resultFactor.print()
     print('\n\n')
+
+    #Test Normalize operation
+    print('Testing Normalize operation')
+    resultFactor.print()
+
+    print('Normalizing the factor...')
+    normalizedFactor = normalize(resultFactor)
+    normalizedFactor.print()
+    print('\n\n')
+    
     

@@ -37,7 +37,10 @@ class Factor(object):
 
     def addEntry(self, variablesAssignment, probabilityValue):
         if variablesAssignment:
-            self.table[variablesAssignment] = probabilityValue
+            if variablesAssignment in self.table.keys():
+                print('Error. Attempt to add duplicate entry in factor')
+            else:
+                self.table[variablesAssignment] = probabilityValue
 
     def getValueForAssignment(self, variablesAssignment):
         if variablesAssignment in self.table.keys():
