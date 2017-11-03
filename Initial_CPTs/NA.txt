@@ -1,0 +1,3 @@
+NA
+True 0.3
+False 0.7
