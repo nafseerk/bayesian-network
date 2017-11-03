@@ -2,17 +2,24 @@ from tabulate import tabulate
 
 class Factor(object):
 
-
+    counter = 0
+    
     def __init__(self):
         self.table = {}
         self.variables = []
+        Factor.counter += 1
+        self.identifier = 'f' + str(Factor.counter)
+
+    @staticmethod
+    def resetCounter(self):
+        counter = 0
 
     def loadTableFromFile(self, inputFile):
         f = open(inputFile, 'r') 
         lines = f.readlines()
         f.close()
 
-        self.variables = lines[0].rstrip().split(' ')
+        self.setVariables(lines[0].rstrip().split(' '))
 
         for line in lines[1:]:
             variablesAssignment = tuple(line.split(' ')[:-1])
@@ -30,6 +37,7 @@ class Factor(object):
 
     def setVariables(self, variables):
         self.variables = variables
+        self.identifier +=  '(' + ','.join(self.variables) +')'
 
     def getAssignmentOfVariable(self, variable, variablesAssignment):
         variableIndex = self.variables.index(variable)
@@ -51,11 +59,11 @@ class Factor(object):
         '''
             print CPT in tabular form
         '''
-        print(20*'=' + "CPT" + 20*'=')
+        print(20*'=' + self.identifier + 20*'=')
         headers = self.variables + ['Probability']
         data = list(k + (v,) for k,v in self.table.items())
         print(tabulate(data, headers=headers))
-        print(43*'=')
+        print(50*'=')
 
 
 if __name__ == '__main__':

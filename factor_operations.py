@@ -5,9 +5,13 @@ def restrict(factor, variable, value):
 
     if variable not in factor.getVariables():
         print(' Variable ' + variable + ' not present in the factor')
-
+        
     #Set the variables of the restricted factor
-    newVariables = [var for var in factor.getVariables() if var != variable]
+    newVariables = []    
+    if len(factor.getVariables()) == 1:
+        newVariables.append(variable)
+    else:
+        newVariables = [var for var in factor.getVariables() if var != variable]
     restrictedFactor.setVariables(newVariables)
     
     #Restrict the CPT entries
@@ -15,8 +19,8 @@ def restrict(factor, variable, value):
         if factor.getAssignmentOfVariable(variable, variablesAssignment) == value:
             newvariablesAssignment = ()
             for i in range(len(variablesAssignment)):
-                if factor.getVariables()[i] != variable:
-                   newvariablesAssignment =  newvariablesAssignment + (variablesAssignment[i],)
+                if len(factor.getVariables()) == 1 or factor.getVariables()[i] != variable:
+                   newvariablesAssignment += (variablesAssignment[i],)
             restrictedFactor.addEntry(newvariablesAssignment, probabilityValue)
 
     return restrictedFactor
@@ -169,6 +173,14 @@ if __name__ == '__main__':
     print('Restricting NDG to True...')
     print('Resticted Factor')
     restrictedFactor.print()
+    #print('\n\n')
+    restrictedFactor = restrict(restrictedFactor, 'FS', 'True')
+    restrictedFactor.print()
+    restrictedFactor = restrict(restrictedFactor, 'FM', 'True')
+    restrictedFactor.print()
+    restrictedFactor = restrict(restrictedFactor, 'FH', 'True')
+    restrictedFactor.print()
+    print('After restricting FS and FM and FH to True')
     print('\n\n')
 
     #Test Product operation
