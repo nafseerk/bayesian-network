@@ -32,11 +32,26 @@ def multiply(factor1, factor2):
     elif len(commonVariables) == 1:
         targetVariable = commonVariables[0]
     else:
+        #Hack - works only when variables of one factor is a subset of variables of other factor
+        if set(commonVariables) == set(factor2.getVariables()):
+            productFactor.setVariables(factor1.getVariables())
+            for variablesAssignment, probabilityValue in factor1.table.items():
+                productFactor.addEntry(variablesAssignment, probabilityValue)
+            return productFactor
+        elif set(commonVariables) == set(factor1.getVariables()):
+            productFactor.setVariables(factor2.getVariables())
+            for variablesAssignment, probabilityValue in factor2.table.items():
+                productFactor.addEntry(variablesAssignment, probabilityValue)
+            return productFactor
+            
         #decide what to do when more than 1 common variable among the two factos
         pass
-
+    
+    print('len of common variables = %d' % len(commonVariables))
+    print(commonVariables)
     if not targetVariable:
         print('Cannot multiply the 2 factors')
+
     
     tvIdxFactor1 = factor1.getVariables().index(targetVariable)
     tvIdxFactor2 = factor2.getVariables().index(targetVariable)
@@ -106,7 +121,51 @@ def normalize(factor):
 
     return normalizedFactor
     
-    
+def inference(factorList, queryVariables, orderedListOfHiddenVariables, evidenceList):
+    '''
+        Assuming evidenceList is a list of tuples (variable, assignment)
+    '''
+
+    #Perform restriction
+    for variable, value in evidenceList:
+        for i in range(len(factorList)):
+            if variable in factorList[i].getVariables:
+                print('Restricting ' + variable + ' to ' +  value +' in the below factor')
+                factorList[i].print()
+                restrictedFactor = restrict(factorList[i], variable, value)
+                restrictedFactor.print()
+                factorList[i] = restrictedFactor
+
+                    
+    #Performing sum out
+    for variable in orderedListOfHiddenVariables:
+        factorsWithThisVariable = [factor for factor in factorList if variable in factor.getVariables()]
+        print('Factors to multiply = ', end=' ')
+        print(len(factorsWithThisVariable))
+        while len(factorsWithThisVariable) != 1:
+            productFactor = multiply(factorsWithThisVariable.pop(), factorsWithThisVariable.pop())
+            factorsWithThisVariable.append(productFactor)
+
+        print('Product factor after multiplying all factors with variable %s' % variable)
+        factorsWithThisVariable[0].print()
+
+        print('Result factor after summing out variable %s' % variable)
+        resultFactor = sumout(factorsWithThisVariable[0], variable)
+        resultFactor.print()
+        factorList = [factor for factor in factorList if variable not in factor.getVariables()]
+        factorList.append(resultFactor)
+
+
+    #Normalize the final factor
+    if len(factorList) != 1:
+        print('Something wrong')
+    else:
+        normalizedFactor = normalize(factorList[0])
+        print('Final Factor after normalizing')
+        normalizedFactor.print()
+
+        
+            
 
 if __name__ == '__main__':
     #Test Restrict operation
@@ -154,5 +213,25 @@ if __name__ == '__main__':
     normalizedFactor = normalize(resultFactor)
     normalizedFactor.print()
     print('\n\n')
+
+    #Q.3b
+    CPT_FB_given_FS = Factor()
+    CPT_FB_given_FS.loadTableFromFile('/Users/apple/Documents/git-repos/Q2/bayesian-network/Initial_CPTs/FB_given_FS.txt')
+    CPT_FH_given_FS_FM_NDG = Factor()
+    CPT_FH_given_FS_FM_NDG.loadTableFromFile('/Users/apple/Documents/git-repos/Q2/bayesian-network/Initial_CPTs/FH_given_FS_FM_NDG.txt')
+    CPT_FM = Factor()
+    CPT_FM.loadTableFromFile('/Users/apple/Documents/git-repos/Q2/bayesian-network/Initial_CPTs/FM.txt')
+    CPT_FS = Factor()
+    CPT_FS.loadTableFromFile('/Users/apple/Documents/git-repos/Q2/bayesian-network/Initial_CPTs/FS.txt')
+    CPT_NA = Factor()
+    CPT_NA.loadTableFromFile('/Users/apple/Documents/git-repos/Q2/bayesian-network/Initial_CPTs/NA.txt')
+    CPT_NDG_given_NA_FM = Factor()
+    CPT_NDG_given_NA_FM.loadTableFromFile('/Users/apple/Documents/git-repos/Q2/bayesian-network/Initial_CPTs/NDG_given_NA_FM.txt')
+
+    factorList = [CPT_FH_given_FS_FM_NDG, CPT_FS, CPT_FM, CPT_NDG_given_NA_FM, CPT_NA]
+    queryVariables = ['FH']
+    orderedListOfHiddenVariables = ['NA', 'FS', 'FM', 'NDG']
+    evidenceList = []
+    inference(factorList, queryVariables, orderedListOfHiddenVariables, evidenceList)
     
     
