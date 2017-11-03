@@ -1,0 +1,5 @@
+B C
+False False 0.2
+False True 0.8
+True False 0.3
+True True 0.7
