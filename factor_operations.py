@@ -60,8 +60,39 @@ def multiply(factor1, factor2):
 
     return productFactor
                 
-                
+def sumout(factor, variable):
+    resultFactor = Factor()
 
+    if variable not in factor.getVariables():
+        print('Cannot Sum out a variable that is not present in the factor')
+
+    tvIdx = factor.getVariables().index(variable)
+
+    #Set the variables of the result factor
+    newVariables = [var for var in factor.getVariables() if var != variable]
+    resultFactor.setVariables(newVariables)
+
+    #Sum out the variable from CPT entries
+    for variablesAssignment, probabilityValue in factor.table.items():
+        for otherVariablesAssignment, otherProbabilityValue in factor.table.items():
+            allOtherAssignmentsSame = True
+            for i in range(len(variablesAssignment)):
+                if i != tvIdx and variablesAssignment[i] != otherVariablesAssignment[i]:
+                    allOtherAssignmentsSame = False
+                    break
+            if allOtherAssignmentsSame and variablesAssignment[tvIdx] != otherVariablesAssignment[tvIdx]:
+                newVariablesAssignment = ()
+                for i in range(len(variablesAssignment)):
+                    if i != tvIdx:
+                        newVariablesAssignment += (variablesAssignment[i],)                    
+                newProbabilityValue = probabilityValue + otherProbabilityValue
+                if resultFactor.getValueForAssignment(newVariablesAssignment) == -1:
+                    resultFactor.addEntry(newVariablesAssignment, newProbabilityValue)
+
+    return resultFactor
+                        
+            
+    
 
 if __name__ == '__main__':
     #Test Restrict operation
@@ -71,10 +102,10 @@ if __name__ == '__main__':
     CPT1.loadTableFromFile(inputFile)
     CPT1.print()
 
-    restrictedCPT = restrict(CPT1, 'NDG', 'True')
-    print('Restricting NDG to True.....')
+    restrictedFactor = restrict(CPT1, 'NDG', 'True')
+    print('Restricting NDG to True...')
     print('Resticted Factor')
-    restrictedCPT.print()
+    restrictedFactor.print()
     print('\n\n')
 
     #Test Product operation
@@ -88,7 +119,16 @@ if __name__ == '__main__':
     CPT3.print()
 
     productFactor = multiply(CPT2, CPT3)
-    print('The product factor is:')
+    print('The product factor is...')
     productFactor.print()
+    print('\n\n')
+
+    #Test Sumout operation
+    print('Testing Sumout operation')
+    CPT2.print()
+
+    print('Summing out A...')
+    resultFactor = sumout(CPT2, 'A')
+    resultFactor.print()
     print('\n\n')
     

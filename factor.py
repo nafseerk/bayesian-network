@@ -36,7 +36,13 @@ class Factor(object):
         return variablesAssignment[variableIndex]
 
     def addEntry(self, variablesAssignment, probabilityValue):
-        self.table[variablesAssignment] = probabilityValue
+        if variablesAssignment:
+            self.table[variablesAssignment] = probabilityValue
+
+    def getValueForAssignment(self, variablesAssignment):
+        if variablesAssignment in self.table.keys():
+            return self.table[variablesAssignment]
+        else: return -1
 
     def print(self):
         '''
