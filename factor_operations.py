@@ -22,52 +22,42 @@ def restrict(factor, variable, value):
     return restrictedFactor
 
 
+def assignmentsMatch(assignment1, indexes1, assignment2, indexes2):
+    if len(indexes1) != len(indexes2):
+        print('Error matching 2 entries')
+        
+    isMatch = True 
+    for i in range(len(indexes1)):
+        if assignment1[indexes1[i]] != assignment2[indexes2[i]]:
+            isMatch = False
+            break
+    return isMatch
+    
+
 def multiply(factor1, factor2):
     productFactor = Factor()
     commonVariables = list(set(factor1.getVariables()) & set(factor2.getVariables()))
-    targetVariable = None
     
     if len(commonVariables) == 0:
         print('Cannot multiply the 2 factors. No common variables')
-    elif len(commonVariables) == 1:
-        targetVariable = commonVariables[0]
-    else:
-        #Hack - works only when variables of one factor is a subset of variables of other factor
-        if set(commonVariables) == set(factor2.getVariables()):
-            productFactor.setVariables(factor1.getVariables())
-            for variablesAssignment, probabilityValue in factor1.table.items():
-                productFactor.addEntry(variablesAssignment, probabilityValue)
-            return productFactor
-        elif set(commonVariables) == set(factor1.getVariables()):
-            productFactor.setVariables(factor2.getVariables())
-            for variablesAssignment, probabilityValue in factor2.table.items():
-                productFactor.addEntry(variablesAssignment, probabilityValue)
-            return productFactor
-            
-        #decide what to do when more than 1 common variable among the two factos
-        pass
-    
-    print('len of common variables = %d' % len(commonVariables))
-    print(commonVariables)
-    if not targetVariable:
-        print('Cannot multiply the 2 factors')
-
-    
-    tvIdxFactor1 = factor1.getVariables().index(targetVariable)
-    tvIdxFactor2 = factor2.getVariables().index(targetVariable)
+        return None
 
     #Set the variables of the product factor
     newVariables = [var for var in factor1.getVariables()]
-    newVariables += [var for var in factor2.getVariables() if var != targetVariable]
+    newVariables += [var for var in factor2.getVariables() if var not in commonVariables]
     productFactor.setVariables(newVariables)
+
+    #Get indexes of the common variables in both tables
+    indexes1 = [factor1.getVariables().index(var) for var in commonVariables]
+    indexes2 = [factor2.getVariables().index(var) for var in commonVariables]
 
     #Multiply the CPT entries
     for variablesAssignment1, probabilityValue1 in factor1.table.items():
-        for variablesAssignment2, probabilityValue2 in factor2.table.items():
-            if variablesAssignment1[tvIdxFactor1] == variablesAssignment2[tvIdxFactor2]:
+        for variablesAssignment2, probabilityValue2 in factor2.table.items():            
+            if assignmentsMatch(variablesAssignment1, indexes1, variablesAssignment2, indexes2):
                 newVariablesAssignment = variablesAssignment1
                 for i in range(len(variablesAssignment2)):
-                    if i != tvIdxFactor2:
+                    if i not in indexes2:
                         newVariablesAssignment += (variablesAssignment2[i],)
 
                 newProbabilityValue = probabilityValue1 * probabilityValue2
