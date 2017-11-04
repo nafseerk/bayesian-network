@@ -115,7 +115,7 @@ def normalize(factor):
 
     return normalizedFactor
     
-def inference(factorList, queryVariables, orderedListOfHiddenVariables, evidenceList):
+def inference(factorList, queryVariable, orderedListOfHiddenVariables, evidenceList):
     '''
         Assuming evidenceList is a list of tuples (variable, assignment)
     '''
@@ -123,14 +123,19 @@ def inference(factorList, queryVariables, orderedListOfHiddenVariables, evidence
     #Perform restriction
     for variable, value in evidenceList:
         for i in range(len(factorList)):
-            if variable in factorList[i].getVariables:
+            if variable in factorList[i].getVariables():
                 print('Restricting ' + variable + ' to ' +  value +' in the below factor')
                 factorList[i].print()
-                restrictedFactor = restrict(factorList[i], variable, value)
+                restrictedFactor = restrict(factorList[i], variable, value)                                       
                 restrictedFactor.print()
                 factorList[i] = restrictedFactor
-
                     
+    filteredFactorList = []
+    for factor in factorList:
+        if not (len(factor.getVariables()) == 1 and factor.getVariables()[0] in [var for var, value in evidenceList]):
+            filteredFactorList.append(factor)
+    factorList = filteredFactorList
+    
     #Performing sum out
     for variable in orderedListOfHiddenVariables:
         factorsWithThisVariable = [factor for factor in factorList if variable in factor.getVariables()]
@@ -149,6 +154,22 @@ def inference(factorList, queryVariables, orderedListOfHiddenVariables, evidence
         factorList = [factor for factor in factorList if variable not in factor.getVariables()]
         factorList.append(resultFactor)
 
+    print('Final factors remaining:')
+    for factor in factorList:
+        factor.print()
+
+    #Final processing
+    while len(factorList) != 1:
+        f1 = factorList.pop()
+        f2 = factorList.pop()
+        if f1 == None:
+            factorList.append(f2)
+            break
+        elif f2 == None:
+            factorList.append(f1)
+            break
+        productFactor = multiply(f1, f2)
+        factorList.append(productFactor)
 
     #Normalize the final factor
     if len(factorList) != 1:
@@ -157,6 +178,7 @@ def inference(factorList, queryVariables, orderedListOfHiddenVariables, evidence
         normalizedFactor = normalize(factorList[0])
         print('Final Factor after normalizing')
         normalizedFactor.print()
+        
 
         
             
@@ -235,5 +257,25 @@ if __name__ == '__main__':
     orderedListOfHiddenVariables = ['NA', 'FS', 'FM', 'NDG']
     evidenceList = []
     inference(factorList, queryVariables, orderedListOfHiddenVariables, evidenceList)
-    
+
+    #Q.3c
+    factorList = [CPT_FH_given_FS_FM_NDG, CPT_NDG_given_NA_FM, CPT_FS, CPT_FM, CPT_NA]
+    queryVariables = ['FS']
+    orderedListOfHiddenVariables = ['NA', 'NDG']
+    evidenceList = [('FM', 'True'), ('FH', 'True')]
+    inference(factorList, queryVariables, orderedListOfHiddenVariables, evidenceList)
+
+    #Q.3d
+    factorList = [CPT_FH_given_FS_FM_NDG, CPT_NDG_given_NA_FM, CPT_FB_given_FS, CPT_FS, CPT_FM, CPT_NA]
+    queryVariables = ['FS']
+    orderedListOfHiddenVariables = ['NA', 'NDG']
+    evidenceList = [('FM', 'True'), ('FH', 'True'), ('FB', 'True')]
+    inference(factorList, queryVariables, orderedListOfHiddenVariables, evidenceList)
+
+    #Q. 3e
+    factorList = [CPT_FH_given_FS_FM_NDG, CPT_NDG_given_NA_FM, CPT_FB_given_FS, CPT_FS, CPT_FM, CPT_NA]
+    queryVariables = ['FS']
+    orderedListOfHiddenVariables = ['NDG']
+    evidenceList = [('FM', 'True'), ('FH', 'True'), ('FB', 'True'), ('NA', 'True')]
+    inference(factorList, queryVariables, orderedListOfHiddenVariables, evidenceList)
     
