@@ -1,6 +1,16 @@
 from tabulate import tabulate
 
 class Factor(object):
+    '''
+    class for representing a factor. Contains the following fields:
+        1. variables - list of variable names. Each name is a string
+        2. table - a dictionary to store the CPT, where the key is a tuple of
+           variable assignmennts(True/False values for all the variable in the factor)
+           and value is the probabilty.
+           The value or assignment of an individual variable is a string either 'True' or 'False'.
+           So for a factor of varialbes A, B, C one of the table keys will be ('True', 'False', 'True')
+        3. identifier - which is a unique name for the CPT of the form: f<a number>(variable names). Eg. f3(A,B,C)
+    '''
 
     counter = 0
     
@@ -11,10 +21,22 @@ class Factor(object):
         self.identifier = 'f' + str(Factor.counter)
 
     @staticmethod
-    def resetCounter(self):
-        counter = 0
+    def resetCounter():
+        Factor.counter = 0
+
+    @staticmethod
+    def getCounter():
+        return Factor.counter 
+
+    @staticmethod
+    def setCounter(count):
+        Factor.counter = count
 
     def loadTableFromFile(self, inputFile):
+        '''
+            Used for loading CPT values from a file. This can be used for loading
+            the initial CPTs of the Beayesian Network
+        '''
         f = open(inputFile, 'r') 
         lines = f.readlines()
         f.close()
@@ -26,24 +48,28 @@ class Factor(object):
             probabilityValue = float(line.split(' ')[-1])
             self.table[variablesAssignment] = probabilityValue
 
-    def validate(self):
-        '''
-            Ensure the count of entries in correct 
-        '''
-        pass
-
     def getVariables(self):
         return self.variables
 
     def setVariables(self, variables):
+        '''
+            Used for setting variables for a factor 
+        '''
         self.variables = variables
         self.identifier +=  '(' + ','.join(self.variables) +')'
 
     def getAssignmentOfVariable(self, variable, variablesAssignment):
+        '''
+            Given a factor table entry "variablesAssignment"
+            return the value assigned to that variable
+        '''
         variableIndex = self.variables.index(variable)
         return variablesAssignment[variableIndex]
 
     def addEntry(self, variablesAssignment, probabilityValue):
+        '''
+            Add new entries in the factor table
+        '''
         if variablesAssignment:
             if variablesAssignment in self.table.keys():
                 print('Error. Attempt to add duplicate entry in factor')
@@ -51,6 +77,9 @@ class Factor(object):
                 self.table[variablesAssignment] = probabilityValue
 
     def getValueForAssignment(self, variablesAssignment):
+        '''
+            Returns the probability value of a factor table entry
+        '''
         if variablesAssignment in self.table.keys():
             return self.table[variablesAssignment]
         else: return -1

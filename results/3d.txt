@@ -1,0 +1,234 @@
+Inferring Q. 3d....
+The intial factors are:
+====================f2(FH,FS,FM,NDG)====================
+FH     FS     FM     NDG      Probability
+-----  -----  -----  -----  -------------
+False  False  False  False           1
+False  False  False  True            0.8
+False  False  True   False           0.6
+False  False  True   True            0.35
+False  True   False  False           0.5
+False  True   False  True            0.25
+False  True   True   False           0.1
+False  True   True   True            0.01
+True   False  False  False           0
+True   False  False  True            0.2
+True   False  True   False           0.4
+True   False  True   True            0.65
+True   True   False  False           0.5
+True   True   False  True            0.75
+True   True   True   False           0.9
+True   True   True   True            0.99
+==================================================
+====================f6(NDG,NA,FM)====================
+NDG    NA     FM       Probability
+-----  -----  -----  -------------
+False  False  False            1
+False  False  True             0.6
+False  True   False            0.5
+False  True   True             0.2
+True   False  False            0
+True   False  True             0.4
+True   True   False            0.5
+True   True   True             0.8
+==================================================
+====================f1(FB,FS)====================
+FB     FS       Probability
+-----  -----  -------------
+True   True             0.6
+True   False            0.1
+False  True             0.4
+False  False            0.9
+==================================================
+====================f4(FS)====================
+FS       Probability
+-----  -------------
+True            0.05
+False           0.95
+==================================================
+====================f3(FM)====================
+FM       Probability
+-----  -------------
+True       0.0357143
+False      0.964286
+==================================================
+====================f5(NA)====================
+NA       Probability
+-----  -------------
+True             0.3
+False            0.7
+==================================================
+
+Restricting FM to True in the below factor
+====================f2(FH,FS,FM,NDG)====================
+FH     FS     FM     NDG      Probability
+-----  -----  -----  -----  -------------
+False  False  False  False           1
+False  False  False  True            0.8
+False  False  True   False           0.6
+False  False  True   True            0.35
+False  True   False  False           0.5
+False  True   False  True            0.25
+False  True   True   False           0.1
+False  True   True   True            0.01
+True   False  False  False           0
+True   False  False  True            0.2
+True   False  True   False           0.4
+True   False  True   True            0.65
+True   True   False  False           0.5
+True   True   False  True            0.75
+True   True   True   False           0.9
+True   True   True   True            0.99
+==================================================
+====================f7(FH,FS,NDG)====================
+FH     FS     NDG      Probability
+-----  -----  -----  -------------
+False  False  False           0.6
+False  False  True            0.35
+False  True   False           0.1
+False  True   True            0.01
+True   False  False           0.4
+True   False  True            0.65
+True   True   False           0.9
+True   True   True            0.99
+==================================================
+
+Restricting FM to True in the below factor
+====================f6(NDG,NA,FM)====================
+NDG    NA     FM       Probability
+-----  -----  -----  -------------
+False  False  False            1
+False  False  True             0.6
+False  True   False            0.5
+False  True   True             0.2
+True   False  False            0
+True   False  True             0.4
+True   True   False            0.5
+True   True   True             0.8
+==================================================
+====================f8(NDG,NA)====================
+NDG    NA       Probability
+-----  -----  -------------
+False  False            0.6
+False  True             0.2
+True   False            0.4
+True   True             0.8
+==================================================
+
+Restricting FM to True in the below factor
+====================f3(FM)====================
+FM       Probability
+-----  -------------
+True       0.0357143
+False      0.964286
+==================================================
+====================f9(FM)====================
+FM      Probability
+----  -------------
+True      0.0357143
+==================================================
+
+Restricting FH to True in the below factor
+====================f7(FH,FS,NDG)====================
+FH     FS     NDG      Probability
+-----  -----  -----  -------------
+False  False  False           0.6
+False  False  True            0.35
+False  True   False           0.1
+False  True   True            0.01
+True   False  False           0.4
+True   False  True            0.65
+True   True   False           0.9
+True   True   True            0.99
+==================================================
+====================f10(FS,NDG)====================
+FS     NDG      Probability
+-----  -----  -------------
+False  False           0.4
+False  True            0.65
+True   False           0.9
+True   True            0.99
+==================================================
+
+Restricting FB to True in the below factor
+====================f1(FB,FS)====================
+FB     FS       Probability
+-----  -----  -------------
+True   True             0.6
+True   False            0.1
+False  True             0.4
+False  False            0.9
+==================================================
+====================f11(FS)====================
+FS       Probability
+-----  -------------
+True             0.6
+False            0.1
+==================================================
+
+Summing out variable NA...
+Factors to multiply =  2
+Product factor after multiplying all factors with variable NA
+====================f12(NA,NDG)====================
+NA     NDG      Probability
+-----  -----  -------------
+True   False           0.06
+True   True            0.24
+False  False           0.42
+False  True            0.28
+==================================================
+Result factor after summing out variable NA
+====================f13(NDG)====================
+NDG      Probability
+-----  -------------
+False           0.48
+True            0.52
+==================================================
+
+Summing out variable NDG...
+Factors to multiply =  2
+Product factor after multiplying all factors with variable NDG
+====================f14(NDG,FS)====================
+NDG    FS       Probability
+-----  -----  -------------
+False  False         0.192
+False  True          0.432
+True   False         0.338
+True   True          0.5148
+==================================================
+Result factor after summing out variable NDG
+====================f15(FS)====================
+FS       Probability
+-----  -------------
+False         0.53
+True          0.9468
+==================================================
+
+Final factors remaining:
+====================f11(FS)====================
+FS       Probability
+-----  -------------
+True             0.6
+False            0.1
+==================================================
+====================f4(FS)====================
+FS       Probability
+-----  -------------
+True            0.05
+False           0.95
+==================================================
+====================f15(FS)====================
+FS       Probability
+-----  -------------
+False         0.53
+True          0.9468
+==================================================
+
+Final Factor after normalizing
+====================f18(FS)====================
+FS       Probability
+-----  -------------
+False       0.639333
+True        0.360667
+==================================================
+Answer is 0.361

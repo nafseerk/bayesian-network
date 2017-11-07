@@ -1,14 +1,21 @@
 from factor import Factor
 
+'''
+Special handling done for restricting a variable a factor of one variable
+E.g restricting f(A) to A=True would return
+===f(A)===
+False 0.4
+'''
 def restrict(factor, variable, value):
     restrictedFactor = Factor()
 
+    #The variable to be restricted should be one of the factor variables
     if variable not in factor.getVariables():
         print(' Variable ' + variable + ' not present in the factor')
         
-    #Set the variables of the restricted factor
+    #Set the variables of the resulting restricted factor
     newVariables = []    
-    if len(factor.getVariables()) == 1:
+    if len(factor.getVariables()) == 1:  #Special case when restricting a factor of one variable. E.g. restricting f(A) to A=True
         newVariables.append(variable)
     else:
         newVariables = [var for var in factor.getVariables() if var != variable]
@@ -26,7 +33,12 @@ def restrict(factor, variable, value):
     return restrictedFactor
 
 
+
 def assignmentsMatch(assignment1, indexes1, assignment2, indexes2):
+    '''
+        Helper function used in multiplication operation. Checks whether a factory table entry assignment1 and
+        another factory table entry assignment2 matches (i.e have same True/False assingments) for their corresponding indices
+    '''
     if len(indexes1) != len(indexes2):
         print('Error matching 2 entries')
         
@@ -41,12 +53,13 @@ def assignmentsMatch(assignment1, indexes1, assignment2, indexes2):
 def multiply(factor1, factor2):
     productFactor = Factor()
     commonVariables = list(set(factor1.getVariables()) & set(factor2.getVariables()))
-    
+
+    #Cannot multiply if the factors have no common variables
     if len(commonVariables) == 0:
         print('Cannot multiply the 2 factors. No common variables')
         return None
 
-    #Set the variables of the product factor
+    #Set the variables of the resulting product factor
     newVariables = [var for var in factor1.getVariables()]
     newVariables += [var for var in factor2.getVariables() if var not in commonVariables]
     productFactor.setVariables(newVariables)
@@ -72,9 +85,11 @@ def multiply(factor1, factor2):
 def sumout(factor, variable):
     resultFactor = Factor()
 
+    #Cannot sum out a variable that is not in the factor table
     if variable not in factor.getVariables():
         print('Cannot Sum out a variable that is not present in the factor')
 
+    #Index of the variable to be summed out
     tvIdx = factor.getVariables().index(variable)
 
     #Set the variables of the result factor
@@ -102,6 +117,10 @@ def sumout(factor, variable):
                         
 
 def normalize(factor):
+    '''
+        Normalizes each probability value of the factor table by dividing it by the total sum        
+    '''
+    
     normalizedFactor = Factor()
 
     #Set the variables of the normalized factor
@@ -117,19 +136,35 @@ def normalize(factor):
     
 def inference(factorList, queryVariable, orderedListOfHiddenVariables, evidenceList):
     '''
-        Assuming evidenceList is a list of tuples (variable, assignment)
+        Assumptions
+        1. evidenceList is a list of tuples (variable, assignment)
+        2. queryVariable is a single variable
+        
     '''
 
+    print('The intial factors are:')
+    for factor in factorList:
+        factor.print()
+    
     #Perform restriction
     for variable, value in evidenceList:
         for i in range(len(factorList)):
             if variable in factorList[i].getVariables():
-                print('Restricting ' + variable + ' to ' +  value +' in the below factor')
+                print('\nRestricting ' + variable + ' to ' +  value +' in the below factor')
                 factorList[i].print()
                 restrictedFactor = restrict(factorList[i], variable, value)                                       
                 restrictedFactor.print()
                 factorList[i] = restrictedFactor
-                    
+
+    '''
+      This is a post-restriction step. After restricting, eliminate the
+      factors with one variable that have been restricted. For e.g. if a factor f(A) has been restricted (say A=True)
+      the result would be a factor of the form:
+      ===f(A)===
+      False 0.4
+
+      Such factors are eliminated
+    '''
     filteredFactorList = []
     for factor in factorList:
         if not (len(factor.getVariables()) == 1 and factor.getVariables()[0] in [var for var, value in evidenceList]):
@@ -138,6 +173,7 @@ def inference(factorList, queryVariable, orderedListOfHiddenVariables, evidenceL
     
     #Performing sum out
     for variable in orderedListOfHiddenVariables:
+        print('\nSumming out variable %s...' % variable)
         factorsWithThisVariable = [factor for factor in factorList if variable in factor.getVariables()]
         print('Factors to multiply = ', end=' ')
         print(len(factorsWithThisVariable))
@@ -154,7 +190,11 @@ def inference(factorList, queryVariable, orderedListOfHiddenVariables, evidenceL
         factorList = [factor for factor in factorList if variable not in factor.getVariables()]
         factorList.append(resultFactor)
 
-    print('Final factors remaining:')
+    '''
+        Final step - when the final factor list are all factors of the query variable
+        If there are more than one of such factors, then multiply them to get a single factor
+    '''
+    print('\nFinal factors remaining:')
     for factor in factorList:
         factor.print()
 
@@ -173,16 +213,15 @@ def inference(factorList, queryVariable, orderedListOfHiddenVariables, evidenceL
 
     #Normalize the final factor
     if len(factorList) != 1:
-        print('Something wrong')
+        print('Something wrong..Final factor list should have a single factor')
+        return None
     else:
         normalizedFactor = normalize(factorList[0])
-        print('Final Factor after normalizing')
+        print('\nFinal Factor after normalizing')
         normalizedFactor.print()
-        
+        return normalizedFactor
 
-        
-            
-
+                                
 if __name__ == '__main__':
     #Test Restrict operation
     print('Testing Restrict operation')
@@ -195,14 +234,6 @@ if __name__ == '__main__':
     print('Restricting NDG to True...')
     print('Resticted Factor')
     restrictedFactor.print()
-    #print('\n\n')
-    restrictedFactor = restrict(restrictedFactor, 'FS', 'True')
-    restrictedFactor.print()
-    restrictedFactor = restrict(restrictedFactor, 'FM', 'True')
-    restrictedFactor.print()
-    restrictedFactor = restrict(restrictedFactor, 'FH', 'True')
-    restrictedFactor.print()
-    print('After restricting FS and FM and FH to True')
     print('\n\n')
 
     #Test Product operation
@@ -238,7 +269,7 @@ if __name__ == '__main__':
     normalizedFactor.print()
     print('\n\n')
 
-    #Q.3b
+    Factor.resetCounter()
     CPT_FB_given_FS = Factor()
     CPT_FB_given_FS.loadTableFromFile('/Users/apple/Documents/git-repos/Q2/bayesian-network/Initial_CPTs/FB_given_FS.txt')
     CPT_FH_given_FS_FM_NDG = Factor()
@@ -252,30 +283,47 @@ if __name__ == '__main__':
     CPT_NDG_given_NA_FM = Factor()
     CPT_NDG_given_NA_FM.loadTableFromFile('/Users/apple/Documents/git-repos/Q2/bayesian-network/Initial_CPTs/NDG_given_NA_FM.txt')
 
+    #Q. 3b Ans = 0.0730702
+    initialFactorCount = Factor.getCounter()
     factorList = [CPT_FH_given_FS_FM_NDG, CPT_FS, CPT_FM, CPT_NDG_given_NA_FM, CPT_NA]
     queryVariables = ['FH']
     orderedListOfHiddenVariables = ['NA', 'FS', 'FM', 'NDG']
     evidenceList = []
-    inference(factorList, queryVariables, orderedListOfHiddenVariables, evidenceList)
+    print('Inferring Q. 3b....')
+    resultFactor = inference(factorList, queryVariables, orderedListOfHiddenVariables, evidenceList)
+    print('Answer is %.3f' % resultFactor.getValueForAssignment(('True',)))
+    print('\n\n')
 
-    #Q.3c
+    #Q.3c Ans = 0.0859415
+    Factor.setCounter(initialFactorCount)
     factorList = [CPT_FH_given_FS_FM_NDG, CPT_NDG_given_NA_FM, CPT_FS, CPT_FM, CPT_NA]
     queryVariables = ['FS']
     orderedListOfHiddenVariables = ['NA', 'NDG']
     evidenceList = [('FM', 'True'), ('FH', 'True')]
-    inference(factorList, queryVariables, orderedListOfHiddenVariables, evidenceList)
+    print('Inferring Q. 3c....')
+    resultFactor = inference(factorList, queryVariables, orderedListOfHiddenVariables, evidenceList)
+    print('Answer is %.3f' % resultFactor.getValueForAssignment(('True',)))
+    print('\n\n')
 
-    #Q.3d
+    #Q.3d Ans = 0.360667
+    Factor.setCounter(initialFactorCount)
     factorList = [CPT_FH_given_FS_FM_NDG, CPT_NDG_given_NA_FM, CPT_FB_given_FS, CPT_FS, CPT_FM, CPT_NA]
     queryVariables = ['FS']
     orderedListOfHiddenVariables = ['NA', 'NDG']
     evidenceList = [('FM', 'True'), ('FH', 'True'), ('FB', 'True')]
-    inference(factorList, queryVariables, orderedListOfHiddenVariables, evidenceList)
+    print('Inferring Q. 3d....')
+    resultFactor = inference(factorList, queryVariables, orderedListOfHiddenVariables, evidenceList)
+    print('Answer is %.3f' % resultFactor.getValueForAssignment(('True',)))
+    print('\n\n')
 
-    #Q. 3e
+    #Q. 3e Ans = 0.33844
+    Factor.setCounter(initialFactorCount)
     factorList = [CPT_FH_given_FS_FM_NDG, CPT_NDG_given_NA_FM, CPT_FB_given_FS, CPT_FS, CPT_FM, CPT_NA]
     queryVariables = ['FS']
     orderedListOfHiddenVariables = ['NDG']
     evidenceList = [('FM', 'True'), ('FH', 'True'), ('FB', 'True'), ('NA', 'True')]
-    inference(factorList, queryVariables, orderedListOfHiddenVariables, evidenceList)
+    print('Inferring Q. 3e....')
+    resultFactor = inference(factorList, queryVariables, orderedListOfHiddenVariables, evidenceList)
+    print('Answer is %.3f' % resultFactor.getValueForAssignment(('True',)))
+    print('\n\n')
     
